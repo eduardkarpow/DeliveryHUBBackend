@@ -1,49 +1,36 @@
 const express = require("express");
-const mysql = require("mysql");
-const Model =  require("./databaseAPI/Model");
+const cors = require("cors");
+const cookie_parser = require("cookie-parser");
+const UserService = require("./Services/UserService");
+const connection = require("./databaseAPI/Connection");
 
 const app = express();
 const PORT = 8000;
+
+app.use(cors());
 app.use(express.json());
+app.use(cookie_parser());
 
-const connection = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "root",
-    database: "DeliveryHUB"
-})
 
-const tokensModel = new Model("jwt_tokens", ["access_token", "refresh_token", "users_login"], connection);
-const usersModel = new Model("users", ["login", "phone_number", "password", "first_name", "last_name"], connection);
+
 
 app.get("/", (req, res) => {
     res.send("Hello World");
 
 })
-app.get("/tokens/getAll", (req, res) => {
-    tokensModel.getAll(res);
-})
-app.post("/tokens/getTokens", (req, res) => {
-    tokensModel.findOne(res, req.body);
-})
-app.post("/tokens/setTokens", (req,res) => {
-    tokensModel.addRecord(res, req.body);
-})
-app.post("/tokens/deleteTokens", (req, res) => {
-    tokensModel.deleteRecord(res, req.body);
-})
-app.post("/tokens/updateTokens", (req, res) => {
-    const id = {...req.body["id"]};
-    const data = {...req.body}
-    delete data.id;
-    tokensModel.updateRecord(res, data, id);
-})
-app.post("/users/setUser", (req,res) => {
-    usersModel.addRecord(res, req.body);
-})
-app.post("/users/getUser", (req,res) => {
-    usersModel.findOne(res, req.body);
-})
+app.post("/register", (req, res) => {
+    UserService.registration(req.body.login, req.body.password, req.body.phone, req.body.firstName, req.body.lastName)
+        .then(tokens => res.send(tokens));
+});
+app.post("/login", (req,res) => [
+    UserService.logIn(req.body.login, req.body.password).then(response => res.send(response))
+]);
+app.post("/logout", (req, res) => {
+    UserService.logout(req.body.login).then(resp => res.send(resp));
+});
+app.post("/refresh", (req, res) => {
+    UserService.refresh(req.body.refreshToken).then(resp => res.send(resp));
+});
 app.listen(PORT, () => {
     console.log("app is up");
 })

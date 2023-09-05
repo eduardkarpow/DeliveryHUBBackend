@@ -6,46 +6,36 @@ class Model{
         this.colNames = colNames;
         this.connection = connection;
     }
-    getAll(res){
+    async getAll(){
         const sql = `SELECT * FROM ${this.tableName}`
-        requestToDB(sql, this.connection, (json) => {
-            res.send(json);
-        });
+        return await requestToDB(sql, this.connection);
     }
-    findOne(res, col){
+    async findOne(col){
         let sql;
         if(typeof Object.values(col)[0] === "number"){
             sql = `SELECT * FROM ${this.tableName} WHERE ${Object.keys(col)[0]} = ${Object.values(col)[0]}`
         } else{
             sql = `SELECT * FROM ${this.tableName} WHERE ${Object.keys(col)[0]} = '${Object.values(col)[0]}'`
         }
-        requestToDB(sql,this.connection, (json) => {
-            res.send(json);
-        })
+        return await requestToDB(sql,this.connection);
     }
-    addRecord(res, data){
+    async addRecord(data){
         const sql = `INSERT INTO ${this.tableName} VALUES ('${Object.values(data).join("', '")}');`;
-        requestToDB(sql,this.connection, (json) => {
-            res.send(json);
-        })
+        return await requestToDB(sql,this.connection);
     }
-    deleteRecord(res,data){
+    async deleteRecord(data){
         const sql = `DELETE FROM ${this.tableName} WHERE ${Object.keys(data)[0]}='${Object.values(data)[0]}';`;
-        requestToDB(sql,this.connection, (json) => {
-            res.send(json);
-        })
+        return await requestToDB(sql,this.connection)
     }
-    updateRecord(res, data, id){
+    async updateRecord(data, id){
         let sql = `UPDATE ${this.tableName} SET `;
         const set = [];
-        for(let key in Object.keys(data)){
+        for(let key of Object.keys(data)){
             set.push(`${key} = '${data[key]}'`);
         }
         sql += set.join(", ");
         sql += `WHERE ${Object.keys(id)[0]} = '${Object.values(id)[0]}';`;
-        requestToDB(sql,this.connection, (json) => {
-            res.send(json);
-        })
+        return await requestToDB(sql,this.connection)
     }
 }
 module.exports = Model;
