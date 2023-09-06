@@ -20,10 +20,16 @@ app.get("/", (req, res) => {
 })
 app.post("/register", (req, res) => {
     UserService.registration(req.body.login, req.body.password, req.body.phone, req.body.firstName, req.body.lastName)
-        .then(tokens => res.send(tokens));
+        .then(tokens => {
+            res.send(tokens);
+            res.cookie("token", tokens.refreshToken, {maxAge: 30*24*60*60});
+        });
 });
 app.post("/login", (req,res) => [
-    UserService.logIn(req.body.login, req.body.password).then(response => res.send(response))
+    UserService.logIn(req.body.login, req.body.password).then(response => {
+        res.send(response);
+        res.cookie("token", response.refreshToken, {maxAge: 30*24*60*60});
+    })
 ]);
 app.post("/logout", (req, res) => {
     UserService.logout(req.body.login).then(resp => res.send(resp));
