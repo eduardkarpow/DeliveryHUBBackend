@@ -7,35 +7,41 @@ const connection = require("./databaseAPI/Connection");
 const app = express();
 const PORT = 8000;
 
-app.use(cors());
+app.use(cors({
+    credentials: true,
+    origin: "http://localhost:3000"
+}));
 app.use(express.json());
 app.use(cookie_parser());
 
 
 
 
-app.get("/", (req, res) => {
+app.get("/test", (req, res) => {
     res.send("Hello World");
 
 })
 app.post("/register", (req, res) => {
+    console.log(req);
     UserService.registration(req.body.login, req.body.password, req.body.phone, req.body.firstName, req.body.lastName)
         .then(tokens => {
-            res.send(tokens);
             res.cookie("token", tokens.refreshToken, {maxAge: 30*24*60*60});
+            res.send(tokens);
+
         });
 });
 app.post("/login", (req,res) => [
     UserService.logIn(req.body.login, req.body.password).then(response => {
-        res.send(response);
         res.cookie("token", response.refreshToken, {maxAge: 30*24*60*60});
+        res.send(response);
+
     })
 ]);
 app.post("/logout", (req, res) => {
     UserService.logout(req.body.login).then(resp => res.send(resp));
 });
-app.post("/refresh", (req, res) => {
-    UserService.refresh(req.body.refreshToken).then(resp => res.send(resp));
+app.get("/refresh", (req, res) => {
+    UserService.refresh(req.cookies.token).then(resp => res.send(resp));
 });
 app.listen(PORT, () => {
     console.log("app is up");

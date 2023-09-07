@@ -24,7 +24,6 @@ class UserService{
     }
     static async logIn(login, password){
         let user = await userModel.findOne({login: login});
-        console.log(user);
         if(!user.length){
             throw new Error("User hasn't found");
         }
@@ -49,13 +48,14 @@ class UserService{
             throw new Error("Unauthorized");
         }
         const userData = TokenService.validateRefreshToken(refreshToken);
+
         const tokensFromDB = await TokenService.findToken(refreshToken);
         if(!userData || !tokensFromDB){
             throw new Error("Unauthorized");
         }
-        const user = await userModel.findOne({login: userData.login});
-        const tokens = TokenService.generateTokens(user.login,
-            user.password, user.phone_number, user.first_name, user.last_name);
+        const user = (await userModel.findOne({login: userData.login}))[0];
+        const tokens = TokenService.generateTokens({login: user.login,
+            password: user.password, phone: user.phone_number, firstName: user.first_name, lastName: user.last_name});
         await TokenService.saveTokens(user.login, tokens);
         return {
             ...tokens,

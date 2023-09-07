@@ -14,7 +14,6 @@ class TokenService{
     }
     static async saveTokens(login, tokens){
         const tokenData = await tokenModel.findOne({users_login: login});
-        console.log(tokenData);
         if(tokenData.length){
             const response = await tokenModel.updateRecord({
                 access_token: tokens.accessToken,
@@ -35,7 +34,7 @@ class TokenService{
     }
     static validateAccessToken(token){
         try{
-            const userData = JWT.verify(token, process.env.SECRET_JWT_ACCESS_KEY);
+            const userData = JWT.verify(token, "process.env.SECRET_JWT_ACCESS_KEY");
             return userData;
         } catch (e) {
             throw e;
@@ -43,7 +42,7 @@ class TokenService{
     }
     static validateRefreshToken(token){
         try{
-            const userData = JWT.verify(token, process.env.SECRET_JWT_REFRESH_KEY);
+            const userData = JWT.verify(token, "process.env.SECRET_JWT_REFRESH_KEY");
             return userData;
         } catch (e) {
             throw e;
