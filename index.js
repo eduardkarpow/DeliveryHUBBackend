@@ -22,7 +22,6 @@ app.get("/test", (req, res) => {
 
 })
 app.post("/register", (req, res) => {
-    console.log(req);
     UserService.registration(req.body.login, req.body.password, req.body.phone, req.body.firstName, req.body.lastName)
         .then(tokens => {
             res.cookie("token", tokens.refreshToken, {maxAge: 30*24*60*60});
@@ -41,7 +40,10 @@ app.post("/logout", (req, res) => {
     UserService.logout(req.body.login).then(resp => res.send(resp));
 });
 app.get("/refresh", (req, res) => {
-    UserService.refresh(req.cookies.token).then(resp => res.send(resp));
+    UserService.refresh(req.cookies.token).then(resp => res.send(resp)).catch(error => {
+        res.status(error.status);
+        res.send({message: error.message});
+    });
 });
 app.listen(PORT, () => {
     console.log("app is up");
