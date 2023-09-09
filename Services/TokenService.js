@@ -1,8 +1,7 @@
 const JWT = require("jsonwebtoken");
-const Model = require("../databaseAPI/Model");
-const connection = require("../databaseAPI/Connection");
+const {TokenModel, UserModel} = require("../Models/Models");
 
-const tokenModel = new Model("jwt_tokens", ["access_token", "refresh_token", "users_login"], connection);
+
 class TokenService{
     static generateTokens(payload) {
         const accessToken = JWT.sign(payload, "process.env.SECRET_JWT_ACCESS_KEY", {expiresIn: "10s"});
@@ -13,15 +12,15 @@ class TokenService{
         }
     }
     static async saveTokens(login, tokens){
-        const tokenData = await tokenModel.findOne({users_login: login});
+        const tokenData = await TokenModel.findOne({access_token: tokens.accessToken});
         if(tokenData.length){
-            const response = await tokenModel.updateRecord({
+            const response = await TokenModel.updateRecord({
                 access_token: tokens.accessToken,
                 refresh_token: tokens.refreshToken
             }, {users_login: login});
             return response;
         }
-        const response = await tokenModel.addRecord({
+        const response = await TokenModel.addRecord({
             access_token: tokens.accessToken,
             refresh_token: tokens.refreshToken,
             users_login: login
@@ -29,7 +28,7 @@ class TokenService{
         return response;
     }
     static async deleteTokens(login){
-        const response = await tokenModel.deleteRecord({users_login: login});
+        const response = await TokenModel.deleteRecord({users_login: login});
         return response;
     }
     static validateAccessToken(token){
@@ -49,7 +48,7 @@ class TokenService{
         }
     }
     static async findToken(refreshToken){
-        const token = await tokenModel.findOne({refresh_token: refreshToken});
+        const token = await TokenModel.findOne({refresh_token: refreshToken});
         return token;
     }
 }
