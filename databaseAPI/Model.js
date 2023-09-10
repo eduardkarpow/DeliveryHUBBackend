@@ -42,8 +42,17 @@ class Model{
         }
         sql += set.join(", ");
         sql += ` WHERE ${Object.keys(id)[0]} = '${Object.values(id)[0]}'`;
-        console.log(sql);
         return await requestToDB(sql,this.connection);
+    }
+    async getAllWithRelation(relation, foreign_table){
+        const sql = `SELECT * FROM ${this.tableName} INNER JOIN ${foreign_table} ON ${this.tableName}.${relation.mainTable} = ${foreign_table}.${relation.foreignTable};`;
+        return await requestToDB(sql, this.connection);
+    }
+    async findOneWithRelation(relation, foreign_table, col){
+        const data = Model.premake(col);
+        console.log(data);
+        const sql = `SELECT * FROM ${this.tableName} INNER JOIN ${foreign_table} ON ${this.tableName}.${relation.mainTable} = ${foreign_table}.${relation.foreignTable} WHERE ${Object.keys(data)[0]} = ${Object.values(data)[0]};`;
+        return await requestToDB(sql, this.connection);
     }
 }
 module.exports = Model;

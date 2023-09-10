@@ -5,6 +5,7 @@ const UserService = require("./Services/UserService");
 const connection = require("./databaseAPI/Connection");
 const bodyParser = require("body-parser");
 const fileupload = require("express-fileupload");
+const RestaurantService = require("./Services/RestaurantsService");
 
 const app = express();
 const PORT = 8000;
@@ -54,6 +55,15 @@ app.get("/refresh", (req, res) => {
 });
 app.post("/uploadImage", fileupload(), (req, res) =>{
     UserService.uploadImage(req).then(resp => res.send({href: resp}));
+})
+app.get("/getRestaurants", (req, res) => {
+    RestaurantService.getAllRestaurants().then(rest => res.send(rest));
+})
+app.get("/getSpecializations", (req, res) => {
+    RestaurantService.getAllSpecializations().then(specs => res.send(specs));
+})
+app.post("/getSpecialRests", (req, res) => {
+    RestaurantService.getSpecialRestaurants(req.body).then(specs => res.send(specs));
 })
 app.listen(PORT, () => {
     console.log("app is up");
