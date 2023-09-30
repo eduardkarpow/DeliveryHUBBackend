@@ -6,6 +6,7 @@ const connection = require("./databaseAPI/Connection");
 const bodyParser = require("body-parser");
 const fileupload = require("express-fileupload");
 const RestaurantService = require("./Services/RestaurantsService");
+const sqlBuilder = require("./databaseAPI/SQLBuilder");
 
 const app = express();
 const PORT = 8000;
@@ -27,7 +28,7 @@ app.use('/images', express.static('./images'));
 
 app.get("/test", (req, res) => {
     res.send("Hello World");
-
+    sqlBuilder.delete("jwt_tokens").condition(["access_token"], ["adsasdg"]).request();
 })
 app.post("/register", express.json(), (req, res) => {
     UserService.registration(req.body.login, req.body.password, req.body.phone, req.body.firstName, req.body.lastName)
@@ -64,6 +65,9 @@ app.get("/getSpecializations", (req, res) => {
 })
 app.post("/getSpecialRests", (req, res) => {
     RestaurantService.getSpecialRestaurants(req.body).then(specs => res.send(specs));
+})
+app.post("/getMenu", (req, res) => {
+    RestaurantService.getMenu(req.body.id).then(menu => res.send(menu));
 })
 app.listen(PORT, () => {
     console.log("app is up");

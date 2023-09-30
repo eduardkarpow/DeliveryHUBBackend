@@ -1,6 +1,7 @@
 const JWT = require("jsonwebtoken");
-const {TokenModel, UserModel} = require("../Models/Models");
-
+const {TokenModel} = require("../Models/Models");
+const {sqlBuilder} = require("../databaseAPI/SQLBuilder");
+const SQLBuilder = require("../databaseAPI/SQLBuilder");
 
 class TokenService{
     static generateTokens(payload) {
@@ -12,23 +13,29 @@ class TokenService{
         }
     }
     static async saveTokens(login, tokens){
-        const tokenData = await TokenModel.findOne({access_token: tokens.accessToken});
+        const tokenData =  await SQLBuilder
+                .getAll(TokenModel.tableName)
+                .condition(["access_token"], [tokens.accessToken])
+                .request();
         if(tokenData.length){
-            const response = await TokenModel.updateRecord({
-                access_token: tokens.accessToken,
-                refresh_token: tokens.refreshToken
-            }, {users_login: login});
+            const response = await SQLBuilder
+                .update(TokenModel.tableName)
+                .setValues(["access_token", "refresh_token"], [tokens.accessToken, tokens.refreshToken])
+                .condition(["users_login"], [login])
+                .request();
             return response;
         }
-        const response = await TokenModel.addRecord({
-            access_token: tokens.accessToken,
-            refresh_token: tokens.refreshToken,
-            users_login: login
-        })
+        const response = await SQLBuilder
+            .insert(TokenModel.tableName, TokenModel.colNames)
+            .insertValues([tokens.accessToken, tokens.refreshToken, login])
+            .request();
         return response;
     }
     static async deleteTokens(login){
-        const response = await TokenModel.deleteRecord({users_login: login});
+        const response = await SQLBuilder
+            .delete(TokenModel.tableName)
+            .condition(["users_login"], [login])
+            .request();
         return response;
     }
     static validateAccessToken(token){
@@ -48,7 +55,10 @@ class TokenService{
         }
     }
     static async findToken(refreshToken){
-        const token = await TokenModel.findOne({refresh_token: refreshToken});
+        const token = await SQLBuilder
+            .getAll(TokenModel.tableName)
+            .condition(["refresh_token"], [refreshToken])
+            .request();
         return token;
     }
 }

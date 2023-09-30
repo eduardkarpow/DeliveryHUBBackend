@@ -3,32 +3,36 @@ const connection = require("../databaseAPI/Connection");
 const bcrypt = require("bcrypt");
 const TokenService = require("./TokenService");
 const ApiError = require("../Exceptions/index");
-const {TokenModel, UserModel} = require("../Models/Models")
+const {TokenModel, UserModel} = require("../Models/Models");
+const SQLBuilder = require("../databaseAPI/SQLBuilder");
 const fs = require("fs");
 
 
 
 class UserService{
     static async registration(login, password, phone, firstName, lastName){
-        const candidate = await UserModel.findOne({login: login});
+        const candidate = await SQLBuilder
+            .getAll(UserModel.tableName)
+            .condition(["login"], [login])
+            .request();
         if(candidate.length){
             throw ApiError.BadRequest("user is already exists");
         }
         const hashPassword = await bcrypt.hash(password,3);
         const tokens = TokenService.generateTokens({login, hashPassword, phone, firstName, lastName});
-        const response = await UserModel.addRecord({
-            login: login,
-            phone_number: phone,
-            password: hashPassword,
-            first_name: firstName,
-            last_name: lastName
-        })
+        const response = await SQLBuilder
+            .insert("users", UserModel.colNames, ["avatar_href"])
+            .insertValues([login, phone, hashPassword, firstName, lastName])
+            .request();
 
         const responseTokens = await TokenService.saveTokens(login, tokens);
         return tokens;
     }
     static async logIn(login, password){
-        let user = await UserModel.findOne({login: login});
+        let user = await SQLBuilder
+            .getAll(UserModel.tableName)
+            .condition(["login"], [login])
+            .request();
         if(!user.length){
             throw ApiError.BadRequest("User hasn't found");
         }
@@ -65,7 +69,10 @@ class UserService{
         if(!userData || !tokensFromDB){
             throw ApiError.UnauthorizedError();
         }
-        const user = (await UserModel.findOne({login: userData.login}))[0];
+        const user = (await SQLBuilder
+            .getAll(UserModel.tableName)
+            .condition(["login"], [userData.login])
+            .request())[0];
         const tokens = TokenService.generateTokens({login: user.login,
             password: user.password, phone: user.phone_number, firstName: user.first_name, lastName: user.last_name});
         await TokenService.saveTokens(user.login, tokens);
@@ -92,7 +99,11 @@ class UserService{
             newPath = "images/avatars/standart_avatar.png";
         }
 
-        const resp = await UserModel.updateRecord({avatar_href: newPath}, {login: data.body.login});
+        const resp = await SQLBuilder
+            .update(UserModel.tableName)
+            .setValues(["avatar_href"], [newPath])
+            .condition(["login"], [data.body.login])
+            .request();
         return newPath
     }
 }
