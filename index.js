@@ -7,6 +7,8 @@ const bodyParser = require("body-parser");
 const fileupload = require("express-fileupload");
 const RestaurantService = require("./Services/RestaurantsService");
 const sqlBuilder = require("./databaseAPI/SQLBuilder");
+const SpecializationsService = require("./Services/SpecializationsService");
+const ReviewsService = require("./Services/ReviewsService");
 
 const app = express();
 const PORT = 8000;
@@ -61,13 +63,19 @@ app.get("/getRestaurants", (req, res) => {
     RestaurantService.getAllRestaurants().then(rest => res.send(rest));
 })
 app.get("/getSpecializations", (req, res) => {
-    RestaurantService.getAllSpecializations().then(specs => res.send(specs));
+    SpecializationsService.getAllSpecializations().then(specs => res.send(specs));
 })
 app.post("/getSpecialRests", (req, res) => {
     RestaurantService.getSpecialRestaurants(req.body).then(specs => res.send(specs));
 })
 app.post("/getMenu", (req, res) => {
     RestaurantService.getMenu(req.body.id).then(menu => res.send(menu));
+})
+app.post("/addReview", (req, res) => {
+    ReviewsService.addReview(req.body).then(resp => res.send(resp));
+})
+app.post("/getAllReviews", (req, res) => {
+    ReviewsService.getAllReviews(req.body.id).then(resp => res.send(resp));
 })
 app.listen(PORT, () => {
     console.log("app is up");

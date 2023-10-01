@@ -1,7 +1,7 @@
 const JWT = require("jsonwebtoken");
 const {TokenModel} = require("../Models/Models");
-const {sqlBuilder} = require("../databaseAPI/SQLBuilder");
 const SQLBuilder = require("../databaseAPI/SQLBuilder");
+
 
 class TokenService{
     static generateTokens(payload) {
@@ -13,26 +13,26 @@ class TokenService{
         }
     }
     static async saveTokens(login, tokens){
-        const tokenData =  await SQLBuilder
+        const tokenData =  await (new SQLBuilder())
                 .getAll(TokenModel.tableName)
                 .condition(["access_token"], [tokens.accessToken])
                 .request();
         if(tokenData.length){
-            const response = await SQLBuilder
+            const response = await (new SQLBuilder())
                 .update(TokenModel.tableName)
                 .setValues(["access_token", "refresh_token"], [tokens.accessToken, tokens.refreshToken])
                 .condition(["users_login"], [login])
                 .request();
             return response;
         }
-        const response = await SQLBuilder
+        const response = await (new SQLBuilder())
             .insert(TokenModel.tableName, TokenModel.colNames)
             .insertValues([tokens.accessToken, tokens.refreshToken, login])
             .request();
         return response;
     }
     static async deleteTokens(login){
-        const response = await SQLBuilder
+        const response = await (new SQLBuilder())
             .delete(TokenModel.tableName)
             .condition(["users_login"], [login])
             .request();
@@ -55,7 +55,7 @@ class TokenService{
         }
     }
     static async findToken(refreshToken){
-        const token = await SQLBuilder
+        const token = await (new SQLBuilder())
             .getAll(TokenModel.tableName)
             .condition(["refresh_token"], [refreshToken])
             .request();

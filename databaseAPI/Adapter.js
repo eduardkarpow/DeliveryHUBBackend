@@ -23,5 +23,13 @@ class Adapter{
         }
         return records;
     }
+    static deleteCols(records, deleteCols){
+        for(let record of records){
+            for(let col of deleteCols){
+                delete record[col];
+            }
+        }
+        return records;
+    }
 }
 module.exports = Adapter;

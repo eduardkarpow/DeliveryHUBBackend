@@ -1,7 +1,7 @@
 const requestToDB = require("./RequestAPI");
 const connection = require("./Connection");
 class SQLBuilder{
-    constructor(connection) {
+    constructor() {
         this.sql = "";
         this.connection = connection;
     }
@@ -73,6 +73,7 @@ class SQLBuilder{
         return this;
     }
     setValues(keys, values){
+        this.sql += "SET";
         for(let i = 0; i < keys.length; i++){
             if(i > 0){ this.sql += ",";}
             if(typeof values[i] === "string"){
@@ -81,6 +82,7 @@ class SQLBuilder{
                 this.sql += ` ${keys[i]} = ${values[i]}`;
             }
         }
+        this.sql += " ";
         return this;
     }
     async request(){
@@ -91,5 +93,4 @@ class SQLBuilder{
         return response;
     }
 }
-const sqlBuilder = new SQLBuilder(connection);
-module.exports = sqlBuilder;
+module.exports = SQLBuilder;

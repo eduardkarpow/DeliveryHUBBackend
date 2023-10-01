@@ -1,17 +1,14 @@
-const Model = require("../databaseAPI/Model");
-const connection = require("../databaseAPI/Connection");
 const bcrypt = require("bcrypt");
 const TokenService = require("./TokenService");
 const ApiError = require("../Exceptions/index");
-const {TokenModel, UserModel} = require("../Models/Models");
+const {UserModel} = require("../Models/Models");
 const SQLBuilder = require("../databaseAPI/SQLBuilder");
 const fs = require("fs");
 
 
-
 class UserService{
     static async registration(login, password, phone, firstName, lastName){
-        const candidate = await SQLBuilder
+        const candidate = await (new SQLBuilder())
             .getAll(UserModel.tableName)
             .condition(["login"], [login])
             .request();
@@ -20,7 +17,7 @@ class UserService{
         }
         const hashPassword = await bcrypt.hash(password,3);
         const tokens = TokenService.generateTokens({login, hashPassword, phone, firstName, lastName});
-        const response = await SQLBuilder
+        const response = await (new SQLBuilder)
             .insert("users", UserModel.colNames, ["avatar_href"])
             .insertValues([login, phone, hashPassword, firstName, lastName])
             .request();
@@ -29,7 +26,7 @@ class UserService{
         return tokens;
     }
     static async logIn(login, password){
-        let user = await SQLBuilder
+        let user = await (new SQLBuilder())
             .getAll(UserModel.tableName)
             .condition(["login"], [login])
             .request();
@@ -69,7 +66,7 @@ class UserService{
         if(!userData || !tokensFromDB){
             throw ApiError.UnauthorizedError();
         }
-        const user = (await SQLBuilder
+        const user = (await (new SQLBuilder())
             .getAll(UserModel.tableName)
             .condition(["login"], [userData.login])
             .request())[0];
@@ -99,7 +96,7 @@ class UserService{
             newPath = "images/avatars/standart_avatar.png";
         }
 
-        const resp = await SQLBuilder
+        const resp = await (new SQLBuilder())
             .update(UserModel.tableName)
             .setValues(["avatar_href"], [newPath])
             .condition(["login"], [data.body.login])
