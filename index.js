@@ -9,6 +9,7 @@ const RestaurantService = require("./Services/RestaurantsService");
 const sqlBuilder = require("./databaseAPI/SQLBuilder");
 const SpecializationsService = require("./Services/SpecializationsService");
 const ReviewsService = require("./Services/ReviewsService");
+const OrderService = require("./Services/OrderService");
 
 const app = express();
 const PORT = 8000;
@@ -76,6 +77,9 @@ app.post("/addReview", (req, res) => {
 })
 app.post("/getAllReviews", (req, res) => {
     ReviewsService.getAllReviews(req.body.id).then(resp => res.send(resp));
+})
+app.post("/getOrders", (req, res) => {
+    OrderService.getAllOrders(req.body.login).then(resp => res.send(resp));
 })
 app.listen(PORT, () => {
     console.log("app is up");
