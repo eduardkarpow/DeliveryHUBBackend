@@ -9,3 +9,4 @@ module.exports.FoodItems = new Model("food_items", ["id_food_items", "price", "w
 module.exports.RestsHasSpecs = new Model("food_specializations_has_restaurants", ["food_specializations_food_specialization", "restaurants_id_restaurants"], connection);
 module.exports.ReviewModel = new Model("reviews", ["id_reviews","text", "grade", "rating", "restaurants_id_restaurants", "users_login"], connection);
 module.exports.OrderModel = new Model("orders", ["id_orders", "price", "payment_method", "location", "users_login", "restaurants_id_restaurants", "order_statuses_order_status", "datetime"], connection);
+module.exports.LocationsModel = new Model("user_locations", ["id_user_locations", "location_name", "location", "users_login"], connection);
