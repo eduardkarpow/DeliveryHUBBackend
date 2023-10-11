@@ -10,6 +10,7 @@ const sqlBuilder = require("./databaseAPI/SQLBuilder");
 const SpecializationsService = require("./Services/SpecializationsService");
 const ReviewsService = require("./Services/ReviewsService");
 const OrderService = require("./Services/OrderService");
+const LocationsService = require("./Services/LocationsService");
 
 const app = express();
 const PORT = 8000;
@@ -80,6 +81,12 @@ app.post("/getAllReviews", (req, res) => {
 })
 app.post("/getOrders", (req, res) => {
     OrderService.getAllOrders(req.body.login).then(resp => res.send(resp));
+})
+app.post("/getLocations", (req, res) => {
+    LocationsService.getAllLocations(req.body.login).then(resp => res.send(resp));
+})
+app.post("/addLocation", (req, res) => {
+    LocationsService.createLocation(req.body.login, req.body.locationName, req.body.location).then(resp => res.send(resp));
 })
 app.listen(PORT, () => {
     console.log("app is up");
