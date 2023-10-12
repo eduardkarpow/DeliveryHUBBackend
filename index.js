@@ -88,6 +88,12 @@ app.post("/getLocations", (req, res) => {
 app.post("/addLocation", (req, res) => {
     LocationsService.createLocation(req.body.login, req.body.locationName, req.body.location).then(resp => res.send(resp));
 })
+app.post("/addOrder", (req, res) => {
+    OrderService.addOrder(req.body.price, req.body.paymentMethod, req.body.location, req.body.login, req.body.restaurantId, req.body.orderStatus, req.body.datetime).then(resp => res.send(resp));
+})
+app.post("/addOrderElement", (req, res) => {
+    OrderService.addOrderElement(req.body.amount, req.body.order_id, req.body.food_item_id).then(resp => res.send(resp));
+})
 app.listen(PORT, () => {
     console.log("app is up");
 })
