@@ -1,6 +1,7 @@
-const {RestaurantsModel, Specializations, FoodItems, RestsHasSpecs, ReviewModel} = require("../Models/Models");
+const {RestaurantsModel, Specializations, FoodItems, RestsHasSpecs, ReviewModel, UserModel} = require("../Models/Models");
 const SQLBuilder = require("../databaseAPI/SQLBuilder");
 const Adapter = require("../databaseAPI/Adapter");
+const UserService = require("../Services/UserService");
 
 class RestaurantsService{
     static async getAllRestaurants(){
@@ -14,6 +15,24 @@ class RestaurantsService{
         restaurants = Adapter.renameCols(restaurants, {"specs": "food_specialization"});
         return restaurants;
     }
+    static async addRestaurant(data){
+        const response = await (new SQLBuilder())
+            .insert(RestaurantsModel.tableName, RestaurantsModel.colNames, ["id_restaurants", "rating", "restaurant_image_href"])
+            .insertValues([data.location, data.priceRating, data.name])
+            .request();
+        return response;
+    }
+    static async uploadRestaurantImage(data){
+        let newPath;
+        newPath = "images/restaurants/"+UserService.generateString(10)+data.body.name+".jpg";
+        await data.files.image.mv(newPath);
+        const resp = await (new SQLBuilder())
+            .update(RestaurantsModel.tableName)
+            .setValues(["restaurant_image_href"], [newPath])
+            .condition(["name"], [data.body.name])
+            .request();
+        return newPath
+    }
     static async getSpecialRestaurants(special){
         const specs = await (new SQLBuilder())
             .getAll(RestsHasSpecs.tableName)
@@ -25,7 +44,13 @@ class RestaurantsService{
         restaurants = Adapter.renameCols(restaurants, {"specs": "food_specialization"});
         return restaurants;
     }
-
+    static async addSpecialization(restId, spec){
+        const response = await (new SQLBuilder())
+            .insert(RestsHasSpecs.tableName, RestsHasSpecs.colNames)
+            .insertValues([spec, restId])
+            .request();
+        return response;
+    }
     static async getMenu(restId){
         let menu = await (new SQLBuilder())
             .getAll(FoodItems.tableName)

@@ -40,6 +40,7 @@ class UserService{
         }
         const tokens = TokenService.generateTokens({login: user.login,
             password: user.password, phone: user.phone_number, firstName: user.first_name, lastName: user.last_name});
+        await TokenService.deleteTokens(user.login);
         await TokenService.saveTokens(login, tokens);
         return {
             ...tokens,
@@ -58,13 +59,13 @@ class UserService{
     }
     static async refresh(refreshToken){
         if(!refreshToken){
-            throw ApiError.UnauthorizedError();
+            throw ApiError.BadRequest();
         }
         const userData = TokenService.validateRefreshToken(refreshToken);
 
         const tokensFromDB = await TokenService.findToken(refreshToken);
         if(!userData || !tokensFromDB){
-            throw ApiError.UnauthorizedError();
+            throw ApiError.BadRequest();
         }
         const user = (await (new SQLBuilder())
             .getAll(UserModel.tableName)
@@ -72,7 +73,10 @@ class UserService{
             .request())[0];
         const tokens = TokenService.generateTokens({login: user.login,
             password: user.password, phone: user.phone_number, firstName: user.first_name, lastName: user.last_name});
-        await TokenService.saveTokens(user.login, tokens);
+        if(tokens["accessToken"] !== tokensFromDB["access_token"]) {
+            await TokenService.deleteTokens(user.login);
+            await TokenService.saveTokens(user.login, tokens);
+        }
         return {
             ...tokens,
             user

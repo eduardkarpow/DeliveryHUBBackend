@@ -1,4 +1,4 @@
-const {OrderModel, OrderElementsModel, RestaurantsModel, OrderStatusesModel} = require("../Models/Models");
+const {OrderModel, OrderElementsModel, RestaurantsModel, OrderStatusesModel, FoodItems} = require("../Models/Models");
 const SQLBuilder = require("../databaseAPI/SQLBuilder");
 const Adapter = require("../databaseAPI/Adapter");
 class OrderService {
@@ -37,6 +37,27 @@ class OrderService {
             .request();
         return response;
     }
+    static async getOrderInfo(order_id){
+        let response = await (new SQLBuilder())
+            .getAll(OrderModel.tableName)
+            .join(OrderModel.tableName, RestaurantsModel.tableName, "restaurants_id_restaurants", "id_restaurants")
+            .join(OrderModel.tableName, OrderStatusesModel.tableName, "order_statuses_order_status", "order_status")
+            .condition(["id_orders"], [order_id])
+            .request();
+        response = Adapter.deleteCols(response, ["payment_method", "location", "users_login", "restaurants_id_restaurants", "order_statuses_order_status",
+            "rating", "price_rating"]);
+        response = Adapter.renameCols(response, {"restId": "id_restaurants", "id": "id_orders", "fullPrice": "price", "restImage": "restaurant_image_href", "status":"order_status", "statusColor": "status_color"});
+        let elements = await (new SQLBuilder())
+            .getAll(OrderElementsModel.tableName)
+            .join(OrderElementsModel.tableName, FoodItems.tableName, "food_items_id_food_items", "id_food_items")
+            .condition(["orders_id_orders"], [order_id])
+            .request();
+        elements = Adapter.deleteCols(elements, ["orders_id_orders", "food_items_id_food_items", "weight", "fats", "proteins", "calories", "carbohydrates", "restaurants_id_restaurants"]);
+        elements = Adapter.renameCols(elements, {"foodId": "id_food_items", "id": "id_order_elements", "image": "food_image_href"});
+        response[0].orderElements = elements;
+        return response[0];
+    }
+
 }
 
 module.exports = OrderService;

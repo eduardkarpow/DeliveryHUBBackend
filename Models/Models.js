@@ -12,3 +12,5 @@ module.exports.OrderModel = new Model("orders", ["id_orders", "price", "payment_
 module.exports.LocationsModel = new Model("user_locations", ["id_user_locations", "location_name", "location", "users_login"], connection);
 module.exports.OrderElementsModel = new Model("order_elements", ["id_order_elements", "amount", "orders_id_orders", "food_items_id_food_items"], connection);
 module.exports.OrderStatusesModel = new Model("order_statuses", ["order_status"], connection);
+module.exports.Ingredients = new Model("ingredients", ["id_ingredients", "name", "ingredient_image_href"], connection);
+module.exports.IngrHasFood = new Model("ingredients_has_food_items", ["ingredients_id_ingredients", "food_items_id_food_items"], connection);

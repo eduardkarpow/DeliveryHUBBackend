@@ -11,6 +11,8 @@ const SpecializationsService = require("./Services/SpecializationsService");
 const ReviewsService = require("./Services/ReviewsService");
 const OrderService = require("./Services/OrderService");
 const LocationsService = require("./Services/LocationsService");
+const FoodService = require("./Services/FoodService");
+const IngredientsService = require("./Services/FoodService");
 
 const app = express();
 const PORT = 8000;
@@ -23,23 +25,22 @@ const PORT = 8000;
     next();
 }*/
 //app.use(allowCors);
-app.use(cors({credentials: true, origin: "http://localhost:3000"})); //
+app.use(cors({credentials: true, origin: "http://localhost:3000", allowedHeaders: ['Content-Type', 'authorization']})); //
 app.use(express.json()); //utilizes the body-parser package
 app.use(cookie_parser());
 app.use('/images', express.static('./images'));
 
 
 
-app.get("/test", (req, res) => {
-    res.send("Hello World");
-    sqlBuilder.delete("jwt_tokens").condition(["access_token"], ["adsasdg"]).request();
-})
 app.post("/register", express.json(), (req, res) => {
     UserService.registration(req.body.login, req.body.password, req.body.phone, req.body.firstName, req.body.lastName)
         .then(tokens => {
             res.cookie("token", tokens.refreshToken, {maxAge: 30*24*60*60});
             res.send(tokens);
 
+        }).catch(error => {
+            res.status(error.status);
+            res.send({message: error.message});
         });
 });
 app.post("/login", (req,res) => [
@@ -47,15 +48,18 @@ app.post("/login", (req,res) => [
         res.cookie("token", response.refreshToken, {maxAge: 30*24*60*60});
         res.send(response);
 
+    }).catch(error => {
+        res.status(error.status);
+        res.send({message: error.message});
     })
 ]);
 app.post("/logout", (req, res) => {
     UserService.logout(req.body.login).then(resp => res.send(resp));
 });
-app.get("/refresh", (req, res) => {
+app.post("/refresh", (req, res) => {
     UserService.refresh(req.cookies.token).then(resp => res.send(resp)).catch(error => {
-        res.status(error.status);
-        res.send({message: error.message});
+        res.status(402);
+        res.send({message: "not authorized"});//res.redirect(302, "https://www.google.com");//http://localhost:3000/login
     });
 });
 app.post("/uploadImage", fileupload(), (req, res) =>{
@@ -63,6 +67,15 @@ app.post("/uploadImage", fileupload(), (req, res) =>{
 })
 app.get("/getRestaurants", (req, res) => {
     RestaurantService.getAllRestaurants().then(rest => res.send(rest));
+})
+app.post("/addRestaurant", (req, res) => {
+    RestaurantService.addRestaurant(req.body).then(resp => res.send(resp));
+})
+app.post("/uploadRestaurantImage", fileupload(), (req, res) =>{
+    RestaurantService.uploadRestaurantImage(req).then(resp => res.send({href: resp}));
+})
+app.post("/addSpecializationToRestaurant", (req, res) => {
+    RestaurantService.addSpecialization(req.body.restId, req.body.spec).then(resp => res.send(resp));
 })
 app.get("/getSpecializations", (req, res) => {
     SpecializationsService.getAllSpecializations().then(specs => res.send(specs));
@@ -93,6 +106,36 @@ app.post("/addOrder", (req, res) => {
 })
 app.post("/addOrderElement", (req, res) => {
     OrderService.addOrderElement(req.body.amount, req.body.order_id, req.body.food_item_id).then(resp => res.send(resp));
+})
+app.post("/getOrderInfo", (req, res) => {
+    OrderService.getOrderInfo(req.body.id).then(resp => res.send(resp));
+})
+app.post("/getOrderElements", (req, res) => {
+    OrderService.getOrderElements(req.body.orderId).then(resp => res.send(resp));
+})
+app.post("/getFoodInfo", (req, res) => {
+    FoodService.getFoodInfo(req.body.id).then(resp => res.send(resp));
+})
+app.post("/getFoods", (req, res) => {
+    FoodService.getFoodList(req.body.restId).then(resp => res.send(resp));
+})
+app.post("/addFoodInfo", (req, res) => {
+    FoodService.addFoodItem(req.body).then(resp => res.send(resp));
+})
+app.post("/uploadFoodImage", fileupload(), (req, res) =>{
+    FoodService.uploadFoodImage(req).then(resp => res.send({href: resp}));
+})
+app.get("/getIngredients", (req, res) => {
+    FoodService.getIngredients().then(resp => res.send(resp));
+})
+app.post("/addIngredient", (req, res) => {
+    FoodService.addIngredient(req.body.foodId, req.body.ingredientId).then(resp => res.send(resp));
+})
+app.post("/addIngredientItem", (req, res) => {
+    FoodService.addIngredientItem(req.body).then(resp => res.send(resp));
+})
+app.post("/uploadIngredientImage", fileupload(), (req, res) =>{
+    FoodService.uploadIngredientImage(req).then(resp => res.send({href: resp}));
 })
 app.listen(PORT, () => {
     console.log("app is up");
