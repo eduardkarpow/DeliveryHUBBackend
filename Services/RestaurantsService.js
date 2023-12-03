@@ -56,7 +56,7 @@ class RestaurantsService{
             .getAll(FoodItems.tableName)
             .condition(["restaurants_id_restaurants"], [restId])
             .request();
-        Adapter.renameCols(menu, {"id": "id_food_items", "image_href": "food_image_href"});
+        Adapter.renameCols(menu, {"id": "id_food_items", "image_href": "food_image_href", "isVisible": "is_visible"});
         return menu;
     }
     static async computeRating(restId){

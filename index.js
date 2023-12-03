@@ -113,6 +113,12 @@ app.post("/getOrderInfo", (req, res) => {
 app.post("/getOrderElements", (req, res) => {
     OrderService.getOrderElements(req.body.orderId).then(resp => res.send(resp));
 })
+app.get("/getAllOrders", (req, res) => {
+    OrderService.getOrdersAndStatuses().then(resp => res.send(resp));
+})
+app.post("/updateOrderStatus", (req, res) => {
+    OrderService.updateOrderStatus(req.body.id, req.body.status).then(resp => res.send(resp));
+})
 app.post("/getFoodInfo", (req, res) => {
     FoodService.getFoodInfo(req.body.id).then(resp => res.send(resp));
 })
@@ -125,8 +131,11 @@ app.post("/addFoodInfo", (req, res) => {
 app.post("/uploadFoodImage", fileupload(), (req, res) =>{
     FoodService.uploadFoodImage(req).then(resp => res.send({href: resp}));
 })
-app.get("/getIngredients", (req, res) => {
-    FoodService.getIngredients().then(resp => res.send(resp));
+app.post("/deleteFood", (req, res) => {
+    FoodService.deleteFoodItem(req.body.foodId).then(resp => res.send(resp));
+})
+app.post("/getIngredients", (req, res) => {
+    FoodService.getIngredients(req.body.foodId).then(resp => res.send(resp));
 })
 app.post("/addIngredient", (req, res) => {
     FoodService.addIngredient(req.body.foodId, req.body.ingredientId).then(resp => res.send(resp));
@@ -136,6 +145,9 @@ app.post("/addIngredientItem", (req, res) => {
 })
 app.post("/uploadIngredientImage", fileupload(), (req, res) =>{
     FoodService.uploadIngredientImage(req).then(resp => res.send({href: resp}));
+})
+app.post("/deleteIngredient", (req, res) => {
+    FoodService.deleteIngredient(req.body.foodId, req.body.ingredientId).then(resp => res.send(resp));
 })
 app.listen(PORT, () => {
     console.log("app is up");

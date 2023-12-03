@@ -57,7 +57,30 @@ class OrderService {
         response[0].orderElements = elements;
         return response[0];
     }
-
+    static async getOrdersAndStatuses(id){
+        let orders = await (new SQLBuilder())
+            .getAll(OrderModel.tableName)
+            .join(OrderModel.tableName, RestaurantsModel.tableName, "restaurants_id_restaurants", "id_restaurants")
+            .request();
+        orders = Adapter.deleteCols(orders, ["payment_method", "location", "users_login", "restaurants_id_restaurants", "price", "datetime", "rating", "price_rating", "name", "id_restaurants"]);
+        orders = Adapter.renameCols(orders, {"id": "id_orders", "status":"order_statuses_order_status", "image": "restaurant_image_href"});
+        let statuses = await (new SQLBuilder())
+            .getAll(OrderStatusesModel.tableName)
+            .request();
+        statuses = Adapter.deleteCols(statuses, ["status_color"]);
+        statuses = Adapter.renameCols(statuses, {"status": "order_status"});
+        statuses = statuses.map(el => el.status);
+        return {orders: orders, statuses: statuses};
+    }
+    static async updateOrderStatus(id, status){
+        const response = await (new SQLBuilder())
+            .update(OrderModel.tableName)
+            .setValues(["order_statuses_order_status"], [status])
+            .condition(["id_orders"], [id])
+            .request();
+        return response;
+    }
 }
+
 
 module.exports = OrderService;

@@ -31,7 +31,7 @@ class SQLBuilder{
         this.sql += "WHERE ";
         for(let i = 0; i < conditionNames.length; i++){
             if(i > 0){
-                this.sql += ",";
+                this.sql += " AND ";
             }
             if(typeof conditions[i] === "number" || typeof conditions[i] === "null"){
                 this.sql += `${conditionNames[i]} = ${conditions[i]}`;
