@@ -1,4 +1,4 @@
-const {FoodItems, IngrHasFood, Ingredients, RestaurantsModel} = require("../Models/Models");
+const {FoodItems, IngrHasFood, Ingredients} = require("../Models/Models");
 const SQLBuilder = require("../databaseAPI/SQLBuilder");
 const Adapter = require("../databaseAPI/Adapter");
 const UserService = require("./UserService");

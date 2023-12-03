@@ -74,6 +74,9 @@ app.post("/addRestaurant", (req, res) => {
 app.post("/uploadRestaurantImage", fileupload(), (req, res) =>{
     RestaurantService.uploadRestaurantImage(req).then(resp => res.send({href: resp}));
 })
+app.post("/updateRestaurant", (req, res) => {
+    RestaurantService.updateRestaurant(req.body.restId).then(resp => res.send(resp));
+})
 app.post("/addSpecializationToRestaurant", (req, res) => {
     RestaurantService.addSpecialization(req.body.restId, req.body.spec).then(resp => res.send(resp));
 })

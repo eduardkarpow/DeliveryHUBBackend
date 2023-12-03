@@ -45,7 +45,7 @@ class OrderService {
             .condition(["id_orders"], [order_id])
             .request();
         response = Adapter.deleteCols(response, ["payment_method", "location", "users_login", "restaurants_id_restaurants", "order_statuses_order_status",
-            "rating", "price_rating"]);
+            "rating", "price_rating", "rest_visible"]);
         response = Adapter.renameCols(response, {"restId": "id_restaurants", "id": "id_orders", "fullPrice": "price", "restImage": "restaurant_image_href", "status":"order_status", "statusColor": "status_color"});
         let elements = await (new SQLBuilder())
             .getAll(OrderElementsModel.tableName)
@@ -62,7 +62,7 @@ class OrderService {
             .getAll(OrderModel.tableName)
             .join(OrderModel.tableName, RestaurantsModel.tableName, "restaurants_id_restaurants", "id_restaurants")
             .request();
-        orders = Adapter.deleteCols(orders, ["payment_method", "location", "users_login", "restaurants_id_restaurants", "price", "datetime", "rating", "price_rating", "name", "id_restaurants"]);
+        orders = Adapter.deleteCols(orders, ["payment_method", "location", "users_login", "restaurants_id_restaurants", "price", "datetime", "rating", "price_rating", "name", "id_restaurants", "rest_visible"]);
         orders = Adapter.renameCols(orders, {"id": "id_orders", "status":"order_statuses_order_status", "image": "restaurant_image_href"});
         let statuses = await (new SQLBuilder())
             .getAll(OrderStatusesModel.tableName)

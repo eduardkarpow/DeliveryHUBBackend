@@ -12,12 +12,12 @@ class RestaurantsService{
             .request();
 
         let restaurants = Adapter.stackRecords(specs, "id_restaurants", "food_specialization", ["food_specializations_food_specialization", "restaurants_id_restaurants"]);
-        restaurants = Adapter.renameCols(restaurants, {"specs": "food_specialization"});
+        restaurants = Adapter.renameCols(restaurants, {"specs": "food_specialization", "restVisible": "rest_visible"});
         return restaurants;
     }
     static async addRestaurant(data){
         const response = await (new SQLBuilder())
-            .insert(RestaurantsModel.tableName, RestaurantsModel.colNames, ["id_restaurants", "rating", "restaurant_image_href"])
+            .insert(RestaurantsModel.tableName, RestaurantsModel.colNames, ["id_restaurants", "rating", "restaurant_image_href", "rest_visible"])
             .insertValues([data.location, data.priceRating, data.name])
             .request();
         return response;
@@ -74,6 +74,14 @@ class RestaurantsService{
             .condition(["id_restaurants"], [restId])
             .request();
 
+    }
+    static async updateRestaurant(restId){
+        const response = await (new SQLBuilder())
+            .update(RestaurantsModel.tableName)
+            .setValues(["rest_visible"], [0])
+            .condition(["id_restaurants"], [restId])
+            .request();
+        return response;
     }
 
 }
