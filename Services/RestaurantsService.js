@@ -1,4 +1,4 @@
-const {RestaurantsModel, Specializations, FoodItems, RestsHasSpecs, ReviewModel, UserModel} = require("../Models/Models");
+const {RestaurantsModel, Specializations, FoodItems, RestsHasSpecs, ReviewModel, UserModel, OrderModel} = require("../Models/Models");
 const SQLBuilder = require("../databaseAPI/SQLBuilder");
 const Adapter = require("../databaseAPI/Adapter");
 const UserService = require("../Services/UserService");
@@ -81,6 +81,22 @@ class RestaurantsService{
             .setValues(["rest_visible"], [0])
             .condition(["id_restaurants"], [restId])
             .request();
+        const orders = await (new SQLBuilder())
+            .getAll(OrderModel.tableName)
+            .condition(["restaurants_id_restaurants"], [restId])
+            .request();
+        let completed = 0;
+        for(let order in orders){
+            if(order["order_statuses_order_status"] !== "Завершен" && order["order_statuses_order_status"] !== "Отменен"){
+                completed++;
+            }
+        }
+        if(!completed){
+            await (new SQLBuilder())
+                .delete(RestaurantsModel.tableName)
+                .condition(["id_restaurants"], [restId])
+                .request();
+        }
         return response;
     }
 
