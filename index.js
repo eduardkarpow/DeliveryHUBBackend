@@ -74,7 +74,7 @@ app.post("/addRestaurant", (req, res) => {
 app.post("/uploadRestaurantImage", fileupload(), (req, res) =>{
     RestaurantService.uploadRestaurantImage(req).then(resp => res.send({href: resp}));
 })
-app.post("/updateRestaurant", (req, res) => {
+app.put("/updateRestaurant", (req, res) => {
     RestaurantService.updateRestaurant(req.body.restId).then(resp => res.send(resp));
 })
 app.post("/addSpecializationToRestaurant", (req, res) => {
@@ -83,23 +83,25 @@ app.post("/addSpecializationToRestaurant", (req, res) => {
 app.get("/getSpecializations", (req, res) => {
     SpecializationsService.getAllSpecializations().then(specs => res.send(specs));
 })
+// not using it
 app.post("/getSpecialRests", (req, res) => {
     RestaurantService.getSpecialRestaurants(req.body).then(specs => res.send(specs));
 })
-app.post("/getMenu", (req, res) => {
-    RestaurantService.getMenu(req.body.id).then(menu => res.send(menu));
+//
+app.get("/getMenu", (req, res) => {
+    RestaurantService.getMenu(req.query.id).then(menu => res.send(menu));
 })
 app.post("/addReview", (req, res) => {
     ReviewsService.addReview(req.body).then(resp => res.send(resp));
 })
-app.post("/getAllReviews", (req, res) => {
-    ReviewsService.getAllReviews(req.body.id).then(resp => res.send(resp));
+app.get("/getAllReviews", (req, res) => {
+    ReviewsService.getAllReviews(req.query.id).then(resp => res.send(resp));
 })
-app.post("/getOrders", (req, res) => {
-    OrderService.getAllOrders(req.body.login).then(resp => res.send(resp));
+app.get("/getOrders", (req, res) => {
+    OrderService.getAllOrders(req.query.login).then(resp => res.send(resp));
 })
-app.post("/getLocations", (req, res) => {
-    LocationsService.getAllLocations(req.body.login).then(resp => res.send(resp));
+app.get("/getLocations", (req, res) => {
+    LocationsService.getAllLocations(req.query.login).then(resp => res.send(resp));
 })
 app.post("/addLocation", (req, res) => {
     LocationsService.createLocation(req.body.login, req.body.locationName, req.body.location).then(resp => res.send(resp));
@@ -110,23 +112,23 @@ app.post("/addOrder", (req, res) => {
 app.post("/addOrderElement", (req, res) => {
     OrderService.addOrderElement(req.body.amount, req.body.order_id, req.body.food_item_id).then(resp => res.send(resp));
 })
-app.post("/getOrderInfo", (req, res) => {
-    OrderService.getOrderInfo(req.body.id).then(resp => res.send(resp));
+app.get("/getOrderInfo", (req, res) => {
+    OrderService.getOrderInfo(req.query.id).then(resp => res.send(resp));
 })
-app.post("/getOrderElements", (req, res) => {
-    OrderService.getOrderElements(req.body.orderId).then(resp => res.send(resp));
+app.get("/getOrderElements", (req, res) => {
+    OrderService.getOrderElements(req.query.id).then(resp => res.send(resp));
 })
 app.get("/getAllOrders", (req, res) => {
     OrderService.getOrdersAndStatuses().then(resp => res.send(resp));
 })
-app.post("/updateOrderStatus", (req, res) => {
+app.put("/updateOrderStatus", (req, res) => {
     OrderService.updateOrderStatus(req.body.id, req.body.status).then(resp => res.send(resp));
 })
-app.post("/getFoodInfo", (req, res) => {
-    FoodService.getFoodInfo(req.body.id).then(resp => res.send(resp));
+app.get("/getFoodInfo", (req, res) => {
+    FoodService.getFoodInfo(req.query.id).then(resp => res.send(resp));
 })
-app.post("/getFoods", (req, res) => {
-    FoodService.getFoodList(req.body.restId).then(resp => res.send(resp));
+app.get("/getFoods", (req, res) => {
+    FoodService.getFoodList(req.query.restId).then(resp => res.send(resp));
 })
 app.post("/addFoodInfo", (req, res) => {
     FoodService.addFoodItem(req.body).then(resp => res.send(resp));
@@ -137,8 +139,8 @@ app.post("/uploadFoodImage", fileupload(), (req, res) =>{
 app.post("/deleteFood", (req, res) => {
     FoodService.deleteFoodItem(req.body.foodId).then(resp => res.send(resp));
 })
-app.post("/getIngredients", (req, res) => {
-    FoodService.getIngredients(req.body.foodId).then(resp => res.send(resp));
+app.get("/getIngredients", (req, res) => {
+    FoodService.getIngredients(req.query.foodId).then(resp => res.send(resp));
 })
 app.post("/addIngredient", (req, res) => {
     FoodService.addIngredient(req.body.foodId, req.body.ingredientId).then(resp => res.send(resp));
@@ -149,8 +151,8 @@ app.post("/addIngredientItem", (req, res) => {
 app.post("/uploadIngredientImage", fileupload(), (req, res) =>{
     FoodService.uploadIngredientImage(req).then(resp => res.send({href: resp}));
 })
-app.post("/deleteIngredient", (req, res) => {
-    FoodService.deleteIngredient(req.body.foodId, req.body.ingredientId).then(resp => res.send(resp));
+app.delete("/deleteIngredient/:foodId/:ingrId", (req, res) => {
+    FoodService.deleteIngredient(req.params.foodId, req.params.ingrId).then(resp => res.send(resp));
 })
 app.listen(PORT, () => {
     console.log("app is up");
