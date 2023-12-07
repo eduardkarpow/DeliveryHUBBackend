@@ -78,7 +78,7 @@ app.put("/updateRestaurant", (req, res) => {
     RestaurantService.updateRestaurant(req.body.restId).then(resp => res.send(resp));
 })
 app.post("/addSpecializationToRestaurant", (req, res) => {
-    RestaurantService.addSpecialization(req.body.restId, req.body.spec).then(resp => res.send(resp));
+    RestaurantService.addSpecialization(req.body.restId, req.body.spec).then(resp => res.send(resp)).catch(e => res.status(400).send("Ресторан уже имеет данную специализацию"));
 })
 app.get("/getSpecializations", (req, res) => {
     SpecializationsService.getAllSpecializations().then(specs => res.send(specs));
@@ -122,7 +122,7 @@ app.get("/getAllOrders", (req, res) => {
     OrderService.getOrdersAndStatuses().then(resp => res.send(resp));
 })
 app.put("/updateOrderStatus", (req, res) => {
-    OrderService.updateOrderStatus(req.body.id, req.body.status).then(resp => res.send(resp));
+    OrderService.updateOrderStatus(req.body.id, req.body.status).then(resp => res.send(resp)).catch(error => res.status(400).send({message: "такого айди не существует"}));
 })
 app.get("/getFoodInfo", (req, res) => {
     FoodService.getFoodInfo(req.query.id).then(resp => res.send(resp));
@@ -143,7 +143,7 @@ app.get("/getIngredients", (req, res) => {
     FoodService.getIngredients(req.query.foodId).then(resp => res.send(resp));
 })
 app.post("/addIngredient", (req, res) => {
-    FoodService.addIngredient(req.body.foodId, req.body.ingredientId).then(resp => res.send(resp));
+    FoodService.addIngredient(req.body.foodId, req.body.ingredientId).then(resp => res.send(resp)).catch(e => res.status(400).send({message: "такого ингредиента не существует"}));
 })
 app.post("/addIngredientItem", (req, res) => {
     FoodService.addIngredientItem(req.body).then(resp => res.send(resp));

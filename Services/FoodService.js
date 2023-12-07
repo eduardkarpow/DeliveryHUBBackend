@@ -72,12 +72,23 @@ class FoodService{
         return {ingredients:ingredients, foodIngredients:foodIngredients};
     }
     static async addIngredient(foodId, ingredientId){
-        console.log(123);
-        const resp = await (new SQLBuilder())
-            .insert(IngrHasFood.tableName, IngrHasFood.colNames)
-            .insertValues([ingredientId, foodId])
-            .request();
-        return resp;
+        try{
+            const ingr = await (new SQLBuilder())
+                .getAll(Ingredients.tableName)
+                .condition(["id_ingredients"], [ingredientId])
+                .request()
+            if(!ingr[0]){
+                throw new Error();
+            }
+            const resp = await (new SQLBuilder())
+                .insert(IngrHasFood.tableName, IngrHasFood.colNames)
+                .insertValues([ingredientId, foodId])
+                .request();
+            return resp;
+        } catch(e){
+            throw e;
+        }
+
     }
     static async addIngredientItem(data){
         const resp = await (new SQLBuilder())

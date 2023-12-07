@@ -45,6 +45,13 @@ class RestaurantsService{
         return restaurants;
     }
     static async addSpecialization(restId, spec){
+        const resp = await (new SQLBuilder())
+            .getAll(RestsHasSpecs.tableName)
+            .condition(["restaurants_id_restaurants", "food_specializations_food_specialization"], [restId, spec])
+            .request()
+        if(resp[0]){
+            throw new Error("Ресторан уже имеет данную специализацию");
+        }
         const response = await (new SQLBuilder())
             .insert(RestsHasSpecs.tableName, RestsHasSpecs.colNames)
             .insertValues([spec, restId])
